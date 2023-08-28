@@ -24,12 +24,11 @@ if (fs.existsSync(TEMP_FILE)) {
 
 let fileObjs = fs.readdirSync(DIR_INPUT, { withFileTypes: false });
 
-fileObjs.forEach((file) => {
-  if (!file.includes("mkv")) {
+fileObjs.forEach((fileName) => {
+  if (!fileName.includes("mkv")) {
     return;
   }
-  let command1 = "ffmpeg -i " + file + " -vsync cfr -c:a copy " + TEMP_FILE;
-  file = DIR_INPUT + "/" + file;
+  let file = DIR_INPUT + "/" + fileName;
 
   var cmd = "ffmpeg";
 
@@ -125,7 +124,7 @@ fileObjs.forEach((file) => {
             "yuv420p",
             "-aspect",
             "16:9",
-            (DIR_OUTPUT + "/" + file.replace(".mkv", " (Upscaled).mkv")),
+            (DIR_OUTPUT + "/" + fileName.replace(".mkv", " (Upscaled).mkv")),
           ];
 
           let proc4 = spawn(cmd, args);
