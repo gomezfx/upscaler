@@ -35,6 +35,7 @@ let fileObjs = fs.readdirSync(DIR_INPUT, { withFileTypes: false });
 
 fileObjs.forEach((fileName) => {
   let running = true;
+  console.log('Processing: ' + fileName);
   if (!fileName.includes("mkv")) {
     return;
   }
