@@ -7,28 +7,34 @@ const DIR_TMP_FRAMES = "./tmp_frames";
 const DIR_OUT_FRAMES = "./out_frames";
 const TEMP_FILE = "temp.mkv";
 
-if (!fs.existsSync(DIR_OUTPUT)) {
-  fs.mkdirSync(DIR_OUTPUT);
+function cleanUp() {
+  if (!fs.existsSync(DIR_OUTPUT)) {
+    fs.mkdirSync(DIR_OUTPUT);
+  }
+
+  if (fs.existsSync(DIR_TMP_FRAMES)) {
+    fs.rmSync(DIR_TMP_FRAMES, { recursive: true, force: true });
+  }
+
+  if (fs.existsSync(DIR_OUT_FRAMES)) {
+    fs.rmSync(DIR_OUT_FRAMES, { recursive: true, force: true });
+  }
+
+  fs.mkdirSync(DIR_TMP_FRAMES);
+  fs.mkdirSync(DIR_OUT_FRAMES);
+
+  if (fs.existsSync(TEMP_FILE)) {
+    fs.unlinkSync(TEMP_FILE);
+  }
 }
 
-if (fs.existsSync(DIR_TMP_FRAMES)) {
-  fs.rmSync(DIR_TMP_FRAMES, { recursive: true, force: true });
-}
-
-if (fs.existsSync(DIR_OUT_FRAMES)) {
-  fs.rmSync(DIR_OUT_FRAMES, { recursive: true, force: true });
-}
-
-fs.mkdirSync(DIR_TMP_FRAMES);
-fs.mkdirSync(DIR_OUT_FRAMES);
-
-if (fs.existsSync(TEMP_FILE)) {
-  fs.unlinkSync(TEMP_FILE);
-}
+cleanUp();
 
 let fileObjs = fs.readdirSync(DIR_INPUT, { withFileTypes: false });
 
+
 fileObjs.forEach((fileName) => {
+  let running = true;
   if (!fileName.includes("mkv")) {
     return;
   }
@@ -128,7 +134,7 @@ fileObjs.forEach((fileName) => {
             "yuv420p",
             "-aspect",
             "16:9",
-            (DIR_OUTPUT + "/" + fileName.replace(".mkv", " (Upscaled).mkv")),
+            DIR_OUTPUT + "/" + fileName.replace(".mkv", " (Upscaled).mkv"),
           ];
 
           let proc4 = spawn(cmd, args);
@@ -143,9 +149,12 @@ fileObjs.forEach((fileName) => {
           });
           proc4.on("close", function () {
             console.log("Finished 4th command...");
+            running = false;
+            cleanUp();
           });
         });
       });
     }
   });
+  while(running);
 });
