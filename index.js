@@ -85,10 +85,62 @@ fileObjs.forEach((file) => {
         proc3.stdout.on("data", function (data) {
           //console.log(data);
         });
-  
+
         proc3.stderr.setEncoding("utf8");
         proc3.stderr.on("data", function (data) {
           //console.log(data);
+        });
+
+        proc3.on("close", function () {
+          console.log("Finished 3rd command...");
+
+          cmd = "ffmpeg";
+          args = [
+            "ffmpeg",
+            "-framerate",
+            "23.98",
+            "-i",
+            "out_frames/frame%08d.jpg",
+            "-i",
+            file,
+            "-map",
+            "0:v:0",
+            "-map",
+            "1:a?",
+            "-map",
+            "1:s?",
+            "-map",
+            "1:t?",
+            "-c:a",
+            "copy",
+            "-c:s",
+            "copy",
+            "-c:t",
+            "copy",
+            "-c:v",
+            "libx264",
+            "-r",
+            "23.98",
+            "-pix_fmt",
+            "yuv420p",
+            "-aspect",
+            "16:9",
+            "output.mkv",
+          ];
+
+          let proc4 = spawn(cmd, args);
+
+          proc4.stdout.on("data", function (data) {
+            //console.log(data);
+          });
+
+          proc4.stderr.setEncoding("utf8");
+          proc4.stderr.on("data", function (data) {
+            //console.log(data);
+          });
+          proc3.on("close", function () {
+            console.log("Finished 4th command...");
+          });
         });
       });
     }
