@@ -100,13 +100,13 @@ async function run() {
     ];
 
     spawnSync("ffmpeg", args1, { encoding: "utf8" });
-    console.log("Finished creating temp video...");
+    console.log(new Date() + " -- " + "Finished creating temp video...");
     spawnSync("ffmpeg", args2, { encoding: "utf8" });
-    console.log("Finished creating temp frames...");
+    console.log(new Date() + " -- " + "Finished creating temp frames...");
     spawnSync("realesrgan-ncnn-vulkan.exe", args3, { encoding: "utf8" });
-    console.log("Finished creating out frames...");
+    console.log(new Date() + " -- " + "Finished creating out frames...");
     spawnSync("ffmpeg", args4, { encoding: "utf8" });
-    console.log("Finished creating output video...");
+    console.log(new Date() + " -- " + "Finished creating output video...");
     console.log("Done.");
     await delay(10000);
 
