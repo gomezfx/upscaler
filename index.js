@@ -1,5 +1,5 @@
 const fs = require("fs");
-var { spawn, exec } = require("child_process");
+var { spawnSync, spawn, exec } = require("child_process");
 
 const DIR_INPUT = "./input";
 const DIR_OUTPUT = "./output";
@@ -32,130 +32,183 @@ cleanUp();
 
 let fileObjs = fs.readdirSync(DIR_INPUT, { withFileTypes: false });
 
-
 fileObjs.forEach((fileName) => {
   let running = true;
-  console.log('Processing: ' + fileName);
   if (!fileName.includes("mkv")) {
     return;
   }
+  console.log("Processing: " + fileName);
+
   let file = DIR_INPUT + "/" + fileName;
 
   var cmd = "ffmpeg";
 
-  var args = ["-i", file, "-vsync", "cfr", "-c:a", "copy", TEMP_FILE];
+  var args1 = ["-i", file, "-vsync", "cfr", "-c:a", "copy", TEMP_FILE];
+  var args2 = (args = [
+    "-i",
+    TEMP_FILE,
+    "-qscale:v",
+    "1",
+    "-qmin",
+    "1",
+    "-qmax",
+    "1",
+    "-vf",
+    "scale=810x540",
+    "-vsync",
+    "0",
+    "tmp_frames/frame%08d.png",
+  ]);
+  var args3 = (args = ["-i", "tmp_frames", "-o", "out_frames", "-n", "realesr-animevideov3", "-s", "4", "-f", "jpg"]);
+  var args4 = [
+    "-framerate",
+    "23.98",
+    "-i",
+    "out_frames/frame%08d.jpg",
+    "-i",
+    file,
+    "-map",
+    "0:v:0",
+    "-map",
+    "1:a?",
+    "-map",
+    "1:s?",
+    "-map",
+    "1:t?",
+    "-c:a",
+    "copy",
+    "-c:s",
+    "copy",
+    "-c:t",
+    "copy",
+    "-c:v",
+    "libx264",
+    "-r",
+    "23.98",
+    "-pix_fmt",
+    "yuv420p",
+    "-aspect",
+    "16:9",
+    DIR_OUTPUT + "/" + fileName.replace(".mkv", " (Upscaled).mkv"),
+  ];
 
-  var proc = spawn(cmd, args);
+  spawnSync("ffmpeg", args1, { encoding: "utf8" });
+  spawnSync("ffmpeg", args2, { encoding: "utf8" });
+  spawnSync("realesrgan-ncnn-vulkan.exe", args3, { encoding: "utf8" });
+  spawnSync("ffmpeg", args4, { encoding: "utf8" });
+  cleanUp();
 
-  proc.stdout.on("data", function (data) {
-    //console.log(data);
-  });
+  // var proc = spawn(cmd, args);
 
-  proc.stderr.setEncoding("utf8");
-  proc.stderr.on("data", function (data) {
-    //console.log(data);
-  });
+  // proc.stdout.on("data", function (data) {
+  //   //console.log(data);
+  // });
 
-  proc.on("close", function () {
-    console.log("Finished 1st command...");
-    if (fs.existsSync(TEMP_FILE)) {
-      args = [
-        "-i",
-        TEMP_FILE,
-        "-qscale:v",
-        "1",
-        "-qmin",
-        "1",
-        "-qmax",
-        "1",
-        "-vf",
-        "scale=810x540",
-        "-vsync",
-        "0",
-        "tmp_frames/frame%08d.png",
-      ];
+  // proc.stderr.setEncoding("utf8");
+  // proc.stderr.on("data", function (data) {
+  //   //console.log(data);
+  // });
 
-      let proc2 = spawn(cmd, args);
+  // proc.on("close", function () {
+  //   console.log("Finished 1st command...");
+  //   if (fs.existsSync(TEMP_FILE)) {
+  //     args = [
+  //       "-i",
+  //       TEMP_FILE,
+  //       "-qscale:v",
+  //       "1",
+  //       "-qmin",
+  //       "1",
+  //       "-qmax",
+  //       "1",
+  //       "-vf",
+  //       "scale=810x540",
+  //       "-vsync",
+  //       "0",
+  //       "tmp_frames/frame%08d.png",
+  //     ];
 
-      proc2.stdout.on("data", function (data) {
-        //console.log(data);
-      });
+  //     let proc2 = spawn(cmd, args);
 
-      proc2.stderr.setEncoding("utf8");
-      proc2.stderr.on("data", function (data) {
-        //console.log(data);
-      });
+  //     proc2.stdout.on("data", function (data) {
+  //       //console.log(data);
+  //     });
 
-      proc2.on("close", function () {
-        console.log("Finished 2nd command...");
-        cmd = "realesrgan-ncnn-vulkan.exe";
-        args = ["-i", "tmp_frames", "-o", "out_frames", "-n", "realesr-animevideov3", "-s", "4", "-f", "jpg"];
+  //     proc2.stderr.setEncoding("utf8");
+  //     proc2.stderr.on("data", function (data) {
+  //       //console.log(data);
+  //     });
 
-        let proc3 = spawn(cmd, args);
+  //     proc2.on("close", function () {
+  //       console.log("Finished 2nd command...");
+  //       cmd = "realesrgan-ncnn-vulkan.exe";
+  //       args = ["-i", "tmp_frames", "-o", "out_frames", "-n", "realesr-animevideov3", "-s", "4", "-f", "jpg"];
 
-        proc3.stdout.on("data", function (data) {
-          //console.log(data);
-        });
+  //       let proc3 = spawn(cmd, args);
 
-        proc3.stderr.setEncoding("utf8");
-        proc3.stderr.on("data", function (data) {
-          //console.log(data);
-        });
+  //       proc3.stdout.on("data", function (data) {
+  //         //console.log(data);
+  //       });
 
-        proc3.on("close", function () {
-          console.log("Finished 3rd command...");
+  //       proc3.stderr.setEncoding("utf8");
+  //       proc3.stderr.on("data", function (data) {
+  //         //console.log(data);
+  //       });
 
-          cmd = "ffmpeg";
-          args = [
-            "-framerate",
-            "23.98",
-            "-i",
-            "out_frames/frame%08d.jpg",
-            "-i",
-            file,
-            "-map",
-            "0:v:0",
-            "-map",
-            "1:a?",
-            "-map",
-            "1:s?",
-            "-map",
-            "1:t?",
-            "-c:a",
-            "copy",
-            "-c:s",
-            "copy",
-            "-c:t",
-            "copy",
-            "-c:v",
-            "libx264",
-            "-r",
-            "23.98",
-            "-pix_fmt",
-            "yuv420p",
-            "-aspect",
-            "16:9",
-            DIR_OUTPUT + "/" + fileName.replace(".mkv", " (Upscaled).mkv"),
-          ];
+  //       proc3.on("close", function () {
+  //         console.log("Finished 3rd command...");
 
-          let proc4 = spawn(cmd, args);
+  //         cmd = "ffmpeg";
+  //         args = [
+  //           "-framerate",
+  //           "23.98",
+  //           "-i",
+  //           "out_frames/frame%08d.jpg",
+  //           "-i",
+  //           file,
+  //           "-map",
+  //           "0:v:0",
+  //           "-map",
+  //           "1:a?",
+  //           "-map",
+  //           "1:s?",
+  //           "-map",
+  //           "1:t?",
+  //           "-c:a",
+  //           "copy",
+  //           "-c:s",
+  //           "copy",
+  //           "-c:t",
+  //           "copy",
+  //           "-c:v",
+  //           "libx264",
+  //           "-r",
+  //           "23.98",
+  //           "-pix_fmt",
+  //           "yuv420p",
+  //           "-aspect",
+  //           "16:9",
+  //           DIR_OUTPUT + "/" + fileName.replace(".mkv", " (Upscaled).mkv"),
+  //         ];
 
-          proc4.stdout.on("data", function (data) {
-            //console.log(data);
-          });
+  //         let proc4 = spawn(cmd, args);
 
-          proc4.stderr.setEncoding("utf8");
-          proc4.stderr.on("data", function (data) {
-            //console.log(data);
-          });
-          proc4.on("close", function () {
-            console.log("Finished 4th command...");
-            running = false;
-            cleanUp();
-          });
-        });
-      });
-    }
-  });
-  while(running);
+  //         proc4.stdout.on("data", function (data) {
+  //           //console.log(data);
+  //         });
+
+  //         proc4.stderr.setEncoding("utf8");
+  //         proc4.stderr.on("data", function (data) {
+  //           //console.log(data);
+  //         });
+  //         proc4.on("close", function () {
+  //           console.log("Finished 4th command...");
+  //           running = false;
+  //           cleanUp();
+  //         });
+  //       });
+  //     });
+  //   }
+  // });
+  // while(running);
 });
