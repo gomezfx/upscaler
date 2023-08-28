@@ -7,6 +7,10 @@ const DIR_TMP_FRAMES = "./tmp_frames";
 const DIR_OUT_FRAMES = "./out_frames";
 const TEMP_FILE = "temp.mkv";
 
+if (!fs.existsSync(DIR_OUTPUT)) {
+  fs.mkdirSync(DIR_OUTPUT);
+}
+
 if (fs.existsSync(DIR_TMP_FRAMES)) {
   fs.rmSync(DIR_TMP_FRAMES, { recursive: true, force: true });
 }
