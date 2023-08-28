@@ -132,14 +132,14 @@ fileObjs.forEach((file) => {
           let proc4 = spawn(cmd, args);
 
           proc4.stdout.on("data", function (data) {
-            //console.log(data);
+            console.log(data);
           });
 
           proc4.stderr.setEncoding("utf8");
           proc4.stderr.on("data", function (data) {
-            //console.log(data);
+            console.log(data);
           });
-          proc3.on("close", function () {
+          proc4.on("close", function () {
             console.log("Finished 4th command...");
           });
         });
