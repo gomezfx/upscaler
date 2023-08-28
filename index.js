@@ -2,6 +2,7 @@ const fs = require("fs");
 var { spawn, exec } = require("child_process");
 
 const DIR_INPUT = "./input";
+const DIR_OUTPUT = "./output";
 const DIR_TMP_FRAMES = "./tmp_frames";
 const DIR_OUT_FRAMES = "./out_frames";
 const TEMP_FILE = "temp.mkv";
@@ -125,7 +126,7 @@ fileObjs.forEach((file) => {
             "yuv420p",
             "-aspect",
             "16:9",
-            "output.mkv",
+            (DIR_OUTPUT + "/" + file.replace(".mkv", " (Upscaled).mkv")),
           ];
 
           let proc4 = spawn(cmd, args);
