@@ -77,7 +77,7 @@ fileObjs.forEach((file) => {
 
       proc2.on("close", function () {
         console.log("Finished 2nd command...");
-        cmd = "realesgran-ncnn-vulkan.exe";
+        cmd = "realesrgan-ncnn-vulkan.exe";
         args = ["-i", "tmp_frames", "-o", "out_frames", "-n", "realesr-animevideov3", "-s", "4", "-f", "jpg"];
 
         let proc3 = spawn(cmd, args);
