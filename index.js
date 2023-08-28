@@ -97,7 +97,6 @@ fileObjs.forEach((file) => {
 
           cmd = "ffmpeg";
           args = [
-            "ffmpeg",
             "-framerate",
             "23.98",
             "-i",
